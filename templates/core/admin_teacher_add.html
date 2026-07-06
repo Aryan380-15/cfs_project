@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Add Teacher{% endblock %}
+
+{% block content %}
+<h3 class="brand-font mb-4">Add Teacher</h3>
+
+<div class="glass-card p-4" style="max-width: 560px;">
+  <form method="post">
+    {% csrf_token %}
+    {% for field in form %}
+      <div class="mb-3">
+        <label class="form-label small text-muted">{{ field.label }}</label>
+        {{ field }}
+        {% if field.errors %}<div class="text-danger small mt-1">{{ field.errors|join:", " }}</div>{% endif %}
+      </div>
+    {% endfor %}
+    <button type="submit" class="btn btn-gradient w-100 mt-2">
+      <i class="bi bi-check-lg"></i> Create Teacher Account
+    </button>
+  </form>
+</div>
+{% endblock %}

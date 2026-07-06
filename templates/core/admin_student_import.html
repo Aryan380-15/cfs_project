@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Import Students{% endblock %}
+
+{% block content %}
+<h3 class="brand-font mb-4">Import Students via CSV</h3>
+
+<div class="glass-card p-4 mb-4" style="max-width: 640px;">
+  <p class="text-muted small">
+    CSV columns required (in this exact order/names):
+  </p>
+  <code class="d-block p-2 mb-3" style="background: var(--bg-panel-2); border-radius: var(--radius-md);">
+    username,password,full_name,roll_number,department_code,semester
+  </code>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.csv_file }}
+    <button type="submit" class="btn btn-gradient w-100 mt-3">
+      <i class="bi bi-upload"></i> Upload & Import
+    </button>
+  </form>
+</div>
+{% endblock %}

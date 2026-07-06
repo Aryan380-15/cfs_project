@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}New Suggestion{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-center">
+  <div class="glass-card p-5" style="width: 100%; max-width: 560px;">
+    <div class="text-center mb-4">
+      <i class="bi bi-lightbulb-fill" style="font-size: 2.2rem; color: var(--accent-cyan);"></i>
+      <h4 class="brand-font mt-2">Submit an Anonymous Suggestion</h4>
+      <p class="text-muted small mb-0">
+        No one — not even the Admin — can trace this back to you.
+      </p>
+    </div>
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <div class="mb-3">
+        <label class="form-label small text-muted">Category</label>
+        {{ form.category }}
+      </div>
+      <div class="mb-3">
+        <label class="form-label small text-muted">Your Suggestion</label>
+        {{ form.text }}
+        {% if form.text.errors %}
+          <div class="text-danger small mt-1">{{ form.text.errors|join:", " }}</div>
+        {% endif %}
+      </div>
+      <div class="d-flex gap-2">
+        <a href="{% url 'suggestions:board' %}" class="btn btn-outline-light flex-fill">Cancel</a>
+        <button type="submit" class="btn btn-gradient flex-fill">
+          <i class="bi bi-send-check"></i> Submit Anonymously
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

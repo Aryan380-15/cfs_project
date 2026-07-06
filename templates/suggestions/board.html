@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block title %}Suggestion Board{% endblock %}
+
+{% block extra_css %}
+<style>
+  .status-badge {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.7rem;
+    border-radius: 999px;
+    font-weight: 600;
+  }
+  .upvote-btn {
+    background: var(--bg-panel-2);
+    border: 1px solid var(--border-glass);
+    color: var(--text-primary);
+    border-radius: var(--radius-md);
+    padding: 0.4rem 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.15s ease;
+  }
+  .upvote-btn:hover:not(:disabled) { border-color: var(--accent-cyan); }
+  .upvote-btn:disabled { opacity: 0.6; cursor: default; }
+  .we-did-box {
+    border-left: 3px solid var(--accent-cyan);
+    background: var(--bg-panel-2);
+    padding: 0.9rem 1rem;
+    border-radius: var(--radius-md);
+    margin-top: 0.75rem;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h3 class="brand-font mb-1">Anonymous Suggestion Board</h3>
+    <p class="text-muted mb-0">"You Said → We Did" — track how the college is acting on feedback.</p>
+  </div>
+  <a href="{% url 'suggestions:submit' %}" class="btn btn-gradient">
+    <i class="bi bi-plus-lg"></i> New Suggestion
+  </a>
+</div>
+
+<form method="get" class="glass-card p-3 mb-4">
+  <div class="row g-2">
+    <div class="col-md-4">
+      <select name="category" class="form-select" onchange="this.form.submit()">
+        <option value="">All Categories</option>
+        {% for value, label in categories %}
+          <option value="{{ value }}" {% if selected_category == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-3">
+      <select name="status" class="form-select" onchange="this.form.submit()">
+        <option value="">All Statuses</option>
+        {% for value, label in statuses %}
+          <option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-4">
+      <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Search suggestions...">
+    </div>
+    <div class="col-md-1">
+      <button type="submit" class="btn btn-gradient w-100"><i class="bi bi-search"></i></button>
+    </div>
+  </div>
+</form>
+
+{% for s in page_obj %}
+<div class="glass-card p-4 mb-3">
+  <div class="d-flex justify-content-between align-items-start mb-2">
+    <div>
+      <span class="badge bg-secondary-subtle text-uppercase small">{{ s.get_category_display }}</span>
+      {% if s.status == "pending" %}
+        <span class="status-badge badge-status-pending ms-1">Pending</span>
+      {% elif s.status == "under_review" %}
+        <span class="status-badge badge-status-progress ms-1">Under Review</span>
+      {% elif s.status == "in_progress" %}
+        <span class="status-badge badge-status-progress ms-1">In Progress</span>
+      {% elif s.status == "implemented" %}
+        <span class="status-badge badge-status-implemented ms-1">Implemented</span>
+      {% elif s.status == "rejected" %}
+        <span class="status-badge badge-status-rejected ms-1">Rejected</span>
+      {% endif %}
+    </div>
+    <span class="text-muted small">{{ s.created_at|date:"d M Y" }}</span>
+  </div>
+
+  <p class="mb-2"><i class="bi bi-chat-left-quote"></i> {{ s.text }}</p>
+
+  <div class="d-flex align-items-center gap-2">
+    <form method="post" action="{% url 'suggestions:upvote' s.id %}">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ request.get_full_path }}">
+      <button type="submit" class="upvote-btn" {% if s.id in upvoted_ids %}disabled{% endif %}>
+        <i class="bi bi-hand-thumbs-up{% if s.id in upvoted_ids %}-fill{% endif %}"></i>
+        {{ s.upvote_count }}
+      </button>
+    </form>
+  </div>
+
+  {% for response in s.responses.all %}
+    <div class="we-did-box">
+      <strong class="small text-uppercase" style="color: var(--accent-cyan);">
+        <i class="bi bi-reply-fill"></i> We Did — {{ response.responded_by_role }}
+      </strong>
+      <p class="mb-0 mt-1">{{ response.message }}</p>
+    </div>
+  {% endfor %}
+</div>
+{% empty %}
+<div class="glass-card p-4 text-center text-muted">
+  <i class="bi bi-inbox"></i> No suggestions found.
+</div>
+{% endfor %}
+
+{% if page_obj.has_other_pages %}
+<nav class="mt-4">
+  <ul class="pagination justify-content-center">
+    {% if page_obj.has_previous %}
+      <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&category={{ selected_category }}&status={{ selected_status }}&q={{ query }}">Previous</a></li>
+    {% endif %}
+    <li class="page-item disabled"><span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span></li>
+    {% if page_obj.has_next %}
+      <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&category={{ selected_category }}&status={{ selected_status }}&q={{ query }}">Next</a></li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
+{% endblock %}

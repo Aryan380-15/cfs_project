@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}My Feedback{% endblock %}
+
+{% block content %}
+<h3 class="brand-font mb-1">My Submitted Feedback</h3>
+<p class="text-muted mb-4">
+  <i class="bi bi-info-circle"></i>
+  Shown only for this login session — the system never stores a link
+  between your account and the answers, so this list resets when you log out.
+</p>
+
+{% if submissions %}
+  {% for s in submissions %}
+  <div class="glass-card p-4 mb-3">
+    <h5 class="brand-font mb-1">{{ s.teacher_name }}</h5>
+    <p class="text-muted small mb-3">{{ s.session_name }}</p>
+    <div class="row g-2 mb-3">
+      {% for r in s.ratings %}
+      <div class="col-md-6">
+        <div class="d-flex justify-content-between border-bottom border-secondary-subtle py-1">
+          <span class="text-muted small">{{ r.question }}</span>
+          <strong>{{ r.rating }}/10</strong>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% if s.comment %}
+    <div class="p-3" style="background: var(--bg-panel-2); border-radius: var(--radius-md);">
+      <i class="bi bi-chat-quote"></i> {{ s.comment }}
+    </div>
+    {% endif %}
+  </div>
+  {% endfor %}
+{% else %}
+  <div class="glass-card p-4 text-center text-muted">
+    <i class="bi bi-inbox"></i> No feedback submitted yet in this session.
+  </div>
+{% endif %}
+{% endblock %}

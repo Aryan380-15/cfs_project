@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Teacher Dashboard{% endblock %}
+
+{% block content %}
+<h3 class="brand-font mb-1">Welcome, {{ user.username }}</h3>
+<p class="text-muted mb-4">Your anonymous feedback overview.</p>
+
+<div class="row g-3">
+  <div class="col-md-4">
+    <div class="glass-card stat-card">
+      <div class="stat-value">{{ overall_avg|default:"--" }}</div>
+      <div class="stat-label">Overall Rating</div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="glass-card stat-card">
+      <div class="stat-value">{{ total_feedback_count|default:"0" }}</div>
+      <div class="stat-label">Total Feedback Received</div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="glass-card stat-card">
+      <div class="stat-value">{{ review_count|default:"0" }}</div>
+      <div class="stat-label">Anonymous Reviews</div>
+    </div>
+  </div>
+</div>
+
+{% if teacher %}
+<div class="glass-card p-4 mt-4 d-flex justify-content-between align-items-center">
+  <p class="text-muted mb-0"><i class="bi bi-graph-up"></i> See your full public profile with graphs and reviews.</p>
+  <a href="{% url 'teachers:public_profile' teacher.id %}" class="btn btn-gradient">View Profile</a>
+</div>
+{% else %}
+<div class="glass-card p-4 mt-4">
+  <p class="text-muted mb-0">
+    <i class="bi bi-exclamation-circle"></i>
+    No teacher profile linked to this account yet. Ask the Admin to link one.
+  </p>
+</div>
+{% endif %}
+{% endblock %}

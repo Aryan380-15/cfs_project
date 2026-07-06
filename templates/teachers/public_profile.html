@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}{{ teacher.full_name }} · Profile{% endblock %}
+
+{% block content %}
+<div class="glass-card p-4 mb-4 d-flex align-items-center gap-4">
+  {% if teacher.photo %}
+    <img src="{{ teacher.photo.url }}" class="rounded-circle" style="width:80px;height:80px;object-fit:cover;" alt="">
+  {% else %}
+    <div class="rounded-circle d-flex align-items-center justify-content-center"
+         style="width:80px;height:80px;background:var(--accent-violet-soft);font-size:1.8rem;">
+      <i class="bi bi-person-fill"></i>
+    </div>
+  {% endif %}
+  <div>
+    <h3 class="brand-font mb-1">{{ teacher.full_name }}</h3>
+    <p class="text-muted mb-0">{{ teacher.designation }} · {{ teacher.department }}</p>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="glass-card stat-card">
+      <div class="stat-value">{{ overall_avg|default:"--" }}</div>
+      <div class="stat-label">Overall Rating / 10</div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="glass-card stat-card">
+      <div class="stat-value">{{ total_feedback_count }}</div>
+      <div class="stat-label">Total Feedback Received</div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="glass-card stat-card">
+      <div class="stat-value">{{ reviews|length }}</div>
+      <div class="stat-label">Anonymous Reviews</div>
+    </div>
+  </div>
+</div>
+
+<div class="glass-card p-4 mb-4">
+  <h5 class="brand-font mb-3">Question-wise Average Ratings</h5>
+  <canvas id="questionChart" height="90"></canvas>
+</div>
+
+<div class="glass-card p-4">
+  <h5 class="brand-font mb-3">Anonymous Reviews</h5>
+  {% for review in reviews %}
+    <div class="p-3 mb-2" style="background: var(--bg-panel-2); border-radius: var(--radius-md);">
+      <i class="bi bi-chat-quote"></i> {{ review.comment }}
+    </div>
+  {% empty %}
+    <p class="text-muted mb-0">No written reviews yet.</p>
+  {% endfor %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  const ctx = document.getElementById('questionChart');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: {{ chart_labels|safe }},
+      datasets: [{
+        label: 'Average Rating (out of 10)',
+        data: {{ chart_values|safe }},
+        backgroundColor: 'rgba(139, 92, 246, 0.55)',
+        borderColor: '#22d3ee',
+        borderWidth: 1,
+        borderRadius: 6,
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: { beginAtZero: true, max: 10, ticks: { color: '#9aa0c3' }, grid: { color: 'rgba(255,255,255,0.06)' } },
+        x: { ticks: { color: '#9aa0c3' }, grid: { display: false } }
+      },
+      plugins: { legend: { labels: { color: '#eef0fb' } } }
+    }
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Give Feedback{% endblock %}
+
+{% block content %}
+<h3 class="brand-font mb-1">Your Assigned Teachers</h3>
+<p class="text-muted mb-4">
+  {% if active_session %}Active session: {{ active_session.name }}{% else %}No feedback session is currently open.{% endif %}
+</p>
+
+{% if active_session %}
+<div class="glass-card p-4 mb-4">
+  <div class="d-flex justify-content-between mb-2">
+    <span class="text-muted small">Progress</span>
+    <span class="text-muted small">{{ completed }} / {{ total }} completed</span>
+  </div>
+  <div class="progress" style="height: 10px; background: var(--bg-panel-2);">
+    <div class="progress-bar" style="width: {{ progress_percent }}%; background: linear-gradient(90deg, var(--accent-violet), var(--accent-cyan));"></div>
+  </div>
+</div>
+
+<div class="row g-3">
+  {% for row in rows %}
+  <div class="col-md-6">
+    <div class="glass-card p-4 d-flex justify-content-between align-items-center">
+      <div>
+        <h6 class="mb-1">{{ row.teacher.full_name }}</h6>
+        <p class="text-muted small mb-0">{{ row.subject.name }}</p>
+      </div>
+      {% if row.submitted %}
+        <span class="badge bg-success"><i class="bi bi-check-lg"></i> Submitted</span>
+      {% else %}
+        <a href="{% url 'feedback:feedback_notice' row.teacher.id %}" class="btn btn-sm btn-gradient">
+          Give Feedback
+        </a>
+      {% endif %}
+    </div>
+  </div>
+  {% empty %}
+  <div class="col-12">
+    <div class="glass-card p-4 text-center text-muted">No teachers assigned yet.</div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}
